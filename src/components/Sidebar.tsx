@@ -1,5 +1,5 @@
 'use client'; // Required for the hook
-
+import Link from 'next/link';
 import { Home, Scale, PanelLeftClose, X, ArrowRight } from 'lucide-react';
 import { useSidebarStore } from '../store/sidebarStore';
 
@@ -52,10 +52,12 @@ const Sidebar = () => {
       <div className="mt-auto bg-stone-100 dark:bg-zinc-800 border border-stone-200 dark:border-zinc-700 rounded-lg p-4">
         <h4 className="font-bold text-stone-800 dark:text-stone-200">Try Pro</h4>
         <p className="text-sm text-stone-600 dark:text-stone-400 my-1">Upgrade for increased limits, smarter searches and more.</p>
-        <button className="flex items-center gap-2 w-full justify-center mt-3 px-4 py-2 bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-800 rounded-md text-sm font-semibold hover:bg-stone-900 dark:hover:bg-white transition-colors">
+        <Link href="/coming-soon"
+            className="flex items-center gap-2 w-full justify-center mt-3 px-4 py-2 bg-stone-800 dark:bg-stone-200 text-white dark:text-stone-800 rounded-md text-sm font-semibold hover:bg-stone-900 dark:hover:bg-white transition-colors"
+          >
           <ArrowRight size={16} />
           Learn More
-        </button>
+        </Link>
       </div>
     </aside>
   );
