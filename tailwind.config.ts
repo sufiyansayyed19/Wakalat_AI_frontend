@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import typography from '@tailwindcss/typography';
 
 const config: Config = {
   content: [
@@ -6,10 +7,11 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: "class", // Add this line
+  darkMode: "class",
   theme: {
     extend: {},
   },
-  plugins: [],
+  // --- ADD THE PLUGIN HERE ---
+  plugins: [typography],
 };
 export default config;
