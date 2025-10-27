@@ -16,22 +16,9 @@ export default function Home() {
       
       {/* --- THIS IS THE CORRECTED CODE --- */}
       {/* We have removed the fragment (<>) wrapper */}
-      <AnimatePresence>
-        {isOpen && [
-          <Sidebar key="sidebar" />,
-          <motion.div
-            key="overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={close} 
-            className="fixed inset-0 bg-black/50 z-40"
-            aria-hidden="true"
-          />
-        ]}
-      </AnimatePresence>
+      
 
-      <main className="flex flex-1 flex-col items-center justify-center px-4">
+      <main className="flex flex-1 flex-col items-center pt-16 px-4 overflow-y-auto">
         <InputArea />
       </main>
       
