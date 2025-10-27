@@ -4,7 +4,10 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { ArrowUp, LoaderCircle, FileText, BotMessageSquare } from 'lucide-react';
 import { useFormStore } from '../store/formStore';
+import type { FormState } from '../store/formStore';
 import GuidedForm from './forms/GuidedForm';
+import DocumentUploadForm from './forms/DocumentUploadForm';
+import toast from 'react-hot-toast';
 
 type InputView = 'text' | 'doc' | 'form';
 
@@ -18,7 +21,7 @@ const InputArea = () => {
   // --- NEW: Specific handler for text submission ---
   const handleTextSubmit = () => {
     if (!textInput.trim()) {
-      alert("Please enter some text to analyze.");
+      toast.error("Please enter some text to analyze.");
       return;
     }
     
@@ -29,32 +32,91 @@ const InputArea = () => {
     console.log(`Input Mode: ${activeView}`);
     console.log(JSON.stringify(dataToSend, null, 2));
 
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Text input has been logged to the console.");
-    }, 2000);
+    toast.promise(
+      new Promise((resolve) => setTimeout(resolve, 2000)),
+      {
+        loading: 'Analyzing your query...',
+        success: 'Analysis complete!',
+        error: 'Error analyzing your query',
+      }
+    ).finally(() => setIsLoading(false));
   };
 
   // --- NEW: Specific handler for form/doc submission ---
   const handleFormSubmit = () => {
     const formData = useFormStore.getState();
 
-    if (activeView === 'form' && !formData.caseType) {
-      alert("Please select a Case Type before submitting.");
+    if (activeView === 'form') {
+      // Check if case type is selected
+      if (!formData.caseType) {
+        toast.error("Please select a Case Type before submitting.");
+        return;
+      }
+
+      // Define mandatory fields and their display names
+      const mandatoryFields = {
+        dateOfIncident: 'Date of Filing / Incident',
+        complainantName: 'Complainant Name',
+        complainantAge: 'Complainant Age/Occupation',
+        complainantAddress: 'Complainant Address',
+        respondentName: 'Respondent Name'
+      } as const;
+
+      // Check if all mandatory fields are filled
+      const missingFields = Object.entries(mandatoryFields)
+        .filter(([key]) => {
+          const value = formData[key as keyof typeof formData];
+          return !value || (typeof value === 'string' && !value.trim());
+        })
+        .map(([_, label]) => label);
+
+      if (missingFields.length > 0) {
+        toast.error(`Please fill in all mandatory fields: ${missingFields.join(', ')}`);
+        return;
+      }
+    } else if (activeView === 'doc') {
+      const uploadedDocs = localStorage.getItem('uploadedDocuments');
+      if (!uploadedDocs) {
+        toast.error("Please upload at least one document before submitting.");
+        return;
+      }
+      
+      const documents = JSON.parse(uploadedDocs);
+      if (!documents.length) {
+        toast.error("Please upload at least one document before submitting.");
+        return;
+      }
+
+      toast.promise(
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+        {
+          loading: 'Processing documents...',
+          success: `Successfully processed ${documents.length} document${documents.length > 1 ? 's' : ''}`,
+          error: 'Error processing documents'
+        }
+      ).finally(() => {
+        // Clear the documents from localStorage after successful submission
+        localStorage.removeItem('uploadedDocuments');
+      });
       return;
     }
 
     setIsLoading(true);
+    // Exclude function properties from the data to send
     const { updateField, updateNestedField, ...dataToSend } = formData;
 
     console.log("--- SUBMITTING DATA TO BACKEND ---");
     console.log(`Input Mode: ${activeView}`);
     console.log(JSON.stringify(dataToSend, null, 2));
 
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Form data has been logged to the console.");
-    }, 2000);
+    toast.promise(
+      new Promise((resolve) => setTimeout(resolve, 2000)),
+      {
+        loading: 'Processing form data...',
+        success: 'Form submitted successfully!',
+        error: 'Error processing form data',
+      }
+    ).finally(() => setIsLoading(false));
   };
 
   // --- UPDATED: Main handler now acts as a dispatcher ---
@@ -120,9 +182,7 @@ const InputArea = () => {
 
         {activeView === 'doc' && (
           <div className="flex flex-col items-center justify-center gap-4">
-            <div className="w-full flex items-center justify-center p-12 border-2 border-dashed border-stone-300 dark:border-zinc-700 rounded-lg">
-              <p className="text-stone-500 dark:text-stone-400">The document upload feature will be built here.</p>
-            </div>
+            <DocumentUploadForm />
           </div>
         )}
 
