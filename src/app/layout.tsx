@@ -1,6 +1,5 @@
 'use client'; // This must be a client component to use hooks
 
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
@@ -11,6 +10,11 @@ import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect } from "react";
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from "@/components/AuthProvider";
+import AuthModal from "@/components/AuthModal";
+import { useAuthModalStore } from "@/store/authModalStore";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,46 +26,70 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Get sidebar state here, in the global layout
+  // Get state from stores
   const { isOpen, close } = useSidebarStore();
+  const { isOpen: isAuthOpen, close: closeAuth } = useAuthModalStore();
 
   // Set the document title
-  if (typeof window !== 'undefined') {
+  useEffect(() => {
     document.title = "WAKALAT-AI";
-  }
+  }, []);
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/white_logo.png" />
+      </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-zinc-900 text-stone-800 dark:text-stone-300 font-sans">
-            <Header />
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <AuthModal isOpen={isAuthOpen} onClose={closeAuth} />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 2000,
+                style: {
+                  background: 'rgb(51 65 85)',
+                  color: '#fff',
+                },
+                success: {
+                  duration: 2000,
+                  iconTheme: {
+                    primary: '#10B981',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
+            <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-zinc-900 text-stone-800 dark:text-stone-300 font-sans">
+              <Header />
 
-            {/* --- GLOBAL SIDEBAR LOGIC --- */}
-            {/* This now lives in the root layout and will work on every page */}
-            <AnimatePresence>
-              {isOpen && (
-                <>
-                  <Sidebar key="sidebar" />
-                  <motion.div
-                    key="overlay"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={close} 
-                    className="fixed inset-0 bg-black/50 z-40"
-                    aria-hidden="true"
-                  />
-                </>
-              )}
-            </AnimatePresence>
-            
-            {/* The page content (e.g., Home or ChatPage) is rendered here */}
-            {children}
-            
-            <Footer />
-          </div>
-        </ThemeProvider>
+              {/* --- GLOBAL SIDEBAR LOGIC --- */}
+              {/* This now lives in the root layout and will work on every page */}
+              <AnimatePresence>
+                {isOpen && (
+                  <>
+                    <Sidebar key="sidebar" />
+                    <motion.div
+                      key="overlay"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={close} 
+                      className="fixed inset-0 bg-black/50 z-40"
+                      aria-hidden="true"
+                    />
+                  </>
+                )}
+              </AnimatePresence>
+              
+              {/* The page content (e.g., Home or ChatPage) is rendered here */}
+              {children}
+              
+              <Footer />
+            </div>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
