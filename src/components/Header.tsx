@@ -2,15 +2,20 @@
 
 import { Menu, User, Sun, Moon } from 'lucide-react';
 import { useSidebarStore } from '../store/sidebarStore';
+import { useAuthModalStore } from '../store/authModalStore';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
-import Image from 'next/image'; // Import the Image component
+import Image from 'next/image';
 
 const Header = () => {
   const { toggle } = useSidebarStore();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white dark:bg-zinc-800 border-b border-stone-200 dark:border-zinc-800 z-30 h-16">
@@ -28,11 +33,12 @@ const Header = () => {
           </div>
           <div className="flex items-center gap-4">
             {/* ... (rest of the header remains the same) ... */}
-            <Link href="/auth">
-              <button className="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100">
-                <User size={24} />
-              </button>
-            </Link>
+            <button 
+              onClick={() => useAuthModalStore.getState().open()}
+              className="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100"
+            >
+              <User size={24} />
+            </button>
             <button 
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100"
