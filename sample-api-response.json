@@ -1,0 +1,168 @@
+{
+  "caseId": "case_1730386800000_abc123xyz",
+  "status": "completed",
+  "timestamp": "2025-10-31T10:30:00.000Z",
+  "relatedCaseLaws": [
+    {
+      "id": "case_law_001",
+      "title": "State of Maharashtra v. Ravi Kumar",
+      "citation": "2023 SCC 145",
+      "court": "Supreme Court of India",
+      "year": 2023,
+      "relevancyScore": 95,
+      "summary": "This landmark case dealt with robbery charges under IPC Section 392. The Supreme Court held that the use of weapons during robbery constitutes an aggravated offense, warranting enhanced punishment. The court emphasized the importance of eyewitness testimony and established guidelines for evaluating CCTV evidence in criminal proceedings.",
+      "keyPoints": [
+        "Use of deadly weapons significantly increases the severity of robbery charges",
+        "Eyewitness testimony, when corroborated, serves as strong evidence",
+        "CCTV footage can constitute primary evidence if properly authenticated",
+        "Chain of custody for recovered stolen items must be established",
+        "Medical evidence of injuries sustained during robbery strengthens prosecution"
+      ],
+      "url": "https://example.com/case/scc-2023-145"
+    },
+    {
+      "id": "case_law_002",
+      "title": "Ramesh Sharma v. State of Delhi",
+      "citation": "2022 Delhi HC 892",
+      "court": "Delhi High Court",
+      "year": 2022,
+      "relevancyScore": 88,
+      "summary": "A significant case involving theft with violence where the court emphasized the crucial importance of proper documentation and maintaining chain of custody for all recovered items. The judgment provided clear guidelines on evidence collection and witness examination.",
+      "keyPoints": [
+        "Proper evidence handling and documentation is mandatory",
+        "Recovery memo must be executed in presence of independent witnesses",
+        "Independent witnesses strengthen the credibility of the prosecution case",
+        "Delay in seizure memo preparation can be questioned",
+        "Panchnama must comply with procedural requirements"
+      ],
+      "url": "https://example.com/case/delhi-hc-2022-892"
+    },
+    {
+      "id": "case_law_003",
+      "title": "State of Uttar Pradesh v. Kamal Singh",
+      "citation": "2021 Allahabad HC 234",
+      "court": "Allahabad High Court",
+      "year": 2021,
+      "relevancyScore": 82,
+      "summary": "This case specifically dealt with the admissibility of electronic evidence, including CCTV footage, in criminal proceedings. The court laid down detailed procedures for authenticating and presenting digital evidence under Section 65B of the Indian Evidence Act.",
+      "keyPoints": [
+        "Digital evidence must comply with Section 65B of Evidence Act",
+        "Certificate from person in charge of computer system is mandatory",
+        "Expert testimony may be required to establish authenticity",
+        "Tampering or manipulation of digital evidence must be ruled out",
+        "Metadata and hash values can help establish integrity"
+      ],
+      "url": "https://example.com/case/allahabad-hc-2021-234"
+    }
+  ],
+  "legalActions": [
+    {
+      "id": "action_001",
+      "action": "File FIR under IPC Section 392 (Robbery)",
+      "description": "Immediately register a First Information Report for robbery with violence at the concerned police station. Given that a weapon (knife) was used during the commission of the offense, this case falls under aggravated robbery provisions. The FIR should include detailed description of the incident, weapon used, items stolen, and injuries sustained (if any).",
+      "applicableSections": [
+        "IPC Section 392 - Punishment for robbery",
+        "IPC Section 397 - Robbery, or dacoity, with attempt to cause death or grievous hurt",
+        "IPC Section 34 - Acts done by several persons in furtherance of common intention (if multiple accused)"
+      ],
+      "priority": "high",
+      "estimatedTimeline": "Within 24-48 hours of incident",
+      "requiredDocuments": [
+        "Identity proof of complainant",
+        "Address proof",
+        "Detailed list of stolen items with approximate value",
+        "Medical certificate if any injuries were sustained",
+        "Witness details and statements",
+        "CCTV footage (if available)"
+      ]
+    },
+    {
+      "id": "action_002",
+      "action": "Preserve and Submit Evidence",
+      "description": "Secure all available evidence immediately to prevent loss or tampering. This includes obtaining CCTV footage from the shop and surrounding areas, recording statements of eyewitnesses, and properly documenting all recovered items. Ensure proper chain of custody is maintained throughout.",
+      "applicableSections": [
+        "Evidence Act Section 65B - Admissibility of electronic records",
+        "Evidence Act Section 3 - Interpretation clause",
+        "CrPC Section 161 - Examination of witnesses by police",
+        "CrPC Section 311 - Power to summon material witness"
+      ],
+      "priority": "high",
+      "estimatedTimeline": "48-72 hours (CCTV footage may be overwritten)",
+      "requiredDocuments": [
+        "CCTV footage with proper authentication certificate under Section 65B",
+        "Written witness statements with signatures",
+        "Recovery memo (panchnama) for any recovered stolen items",
+        "Photographs of crime scene",
+        "List of all evidence collected with date, time, and location",
+        "Expert opinion for weapon identification (if weapon recovered)"
+      ]
+    },
+    {
+      "id": "action_003",
+      "action": "Apply for Victim Compensation",
+      "description": "File an application for monetary compensation under the relevant victim compensation scheme. Victims of violent crimes are entitled to compensation for loss of property, medical expenses, and trauma. The application should be filed before the District Legal Services Authority.",
+      "applicableSections": [
+        "Section 357A CrPC - Victim compensation scheme",
+        "Legal Services Authorities Act, 1987"
+      ],
+      "priority": "medium",
+      "estimatedTimeline": "1-2 weeks after FIR registration",
+      "requiredDocuments": [
+        "Certified copy of FIR",
+        "Loss assessment report or bill of stolen items",
+        "Medical bills and reports (if applicable)",
+        "Bank account details for compensation transfer",
+        "Identity proof and address proof",
+        "Affidavit stating facts of the case"
+      ]
+    },
+    {
+      "id": "action_004",
+      "action": "Engage Legal Counsel",
+      "description": "Consult with a criminal lawyer experienced in robbery cases to ensure proper legal representation throughout the investigation and trial. A lawyer can help in coordinating with police, ensuring proper investigation, and representing you during court proceedings.",
+      "applicableSections": [
+        "Article 22(1) of Constitution - Right to consult legal practitioner",
+        "CrPC Section 301 - Right of person against whom proceedings are instituted to be defended"
+      ],
+      "priority": "medium",
+      "estimatedTimeline": "As soon as possible",
+      "requiredDocuments": [
+        "FIR copy",
+        "All evidence documents",
+        "Witness contact details",
+        "Timeline of events",
+        "Any correspondence with police"
+      ]
+    }
+  ],
+  "applicableLaws": [
+    {
+      "section": "Section 392",
+      "act": "Indian Penal Code, 1860",
+      "description": "Whoever commits robbery shall be punished with rigorous imprisonment for a term which may extend to ten years, and shall also be liable to fine; and, if the robbery be committed on the highway between sunset and sunrise, the imprisonment may be extended to fourteen years."
+    },
+    {
+      "section": "Section 397",
+      "act": "Indian Penal Code, 1860",
+      "description": "If, at the time of committing robbery or dacoity, the offender uses any deadly weapon, or causes grievous hurt to any person, or attempts to cause death or grievous hurt to any person, the imprisonment with which such offender shall be punished shall not be less than seven years."
+    },
+    {
+      "section": "Section 379",
+      "act": "Indian Penal Code, 1860",
+      "description": "Whoever commits theft shall be punished with imprisonment of either description for a term which may extend to three years, or with fine, or with both."
+    },
+    {
+      "section": "Section 65B",
+      "act": "Indian Evidence Act, 1872",
+      "description": "Admissibility of electronic records - Any information contained in an electronic record which is printed on a paper, stored, recorded or copied in optical or magnetic media produced by a computer shall be deemed to be also a document, if the conditions mentioned in this section are satisfied."
+    },
+    {
+      "section": "Section 357A",
+      "act": "Code of Criminal Procedure, 1973",
+      "description": "Victim compensation scheme - Every State Government in coordination with the Central Government shall prepare a scheme for providing funds for the purpose of compensation to the victim or his dependents who have suffered loss or injury as a result of the crime and who require rehabilitation."
+    }
+  ],
+  "summary": "Based on the case details provided, this appears to be a clear case of robbery with violence falling under IPC Section 392. The presence of a deadly weapon (knife) elevates the severity to Section 397, which mandates a minimum sentence of seven years. The availability of eyewitnesses and CCTV footage significantly strengthens the prosecution case. Immediate actions should include: (1) Filing an FIR with detailed description of events, (2) Securing and properly documenting all evidence including CCTV footage within 48-72 hours to prevent loss, and (3) Recording statements of both shopkeeper witnesses. The related case precedents emphasize the importance of maintaining proper chain of custody for evidence and ensuring CCTV footage is authenticated under Section 65B. Given the circumstances, the case has strong merit for successful prosecution. Additionally, you should consider applying for victim compensation under Section 357A CrPC and engaging experienced legal counsel to ensure your rights are protected throughout the legal process.",
+  "confidence": 87,
+  "processingTime": 1500
+}
