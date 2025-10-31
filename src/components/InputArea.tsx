@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation'; // --- NEW: Import Next.js Router ---
 import { ArrowUp, LoaderCircle, FileText, BotMessageSquare } from 'lucide-react';
 import { useFormStore } from '../store/formStore';
-import type { FormState } from '../store/formStore';
+import { useChatStore } from '../store/chatStore'; // --- NEW: Import our Chat Store ---
 import GuidedForm from './forms/GuidedForm';
 import DocumentUploadForm from './forms/DocumentUploadForm';
 import toast from 'react-hot-toast';
@@ -14,119 +14,76 @@ type InputView = 'text' | 'doc' | 'form';
 const InputArea = () => {
   const [activeView, setActiveView] = useState<InputView>('text');
   const [isLoading, setIsLoading] = useState(false);
-  
-  // --- NEW: State for the controlled text area ---
   const [textInput, setTextInput] = useState('');
 
-  // --- NEW: Specific handler for text submission ---
-  const handleTextSubmit = () => {
-    if (!textInput.trim()) {
-      toast.error("Please enter some text to analyze.");
-      return;
-    }
-    
-    setIsLoading(true);
-    const dataToSend = { query: textInput };
+  // --- NEW: Get the router and the createChat action from our stores ---
+  const router = useRouter();
+  const createChat = useChatStore((state) => state.createChat);
+  const formState = useFormStore(); // Fixed: Subscribe to form state changes
 
-    console.log("--- SUBMITTING DATA TO BACKEND ---");
-    console.log(`Input Mode: ${activeView}`);
-    console.log(JSON.stringify(dataToSend, null, 2));
-
-    toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 2000)),
-      {
-        loading: 'Analyzing your query...',
-        success: 'Analysis complete!',
-        error: 'Error analyzing your query',
-      }
-    ).finally(() => setIsLoading(false));
-  };
-
-  // --- NEW: Specific handler for form/doc submission ---
-  const handleFormSubmit = () => {
-    const formData = useFormStore.getState();
-
-    if (activeView === 'form') {
-      // Check if case type is selected
-      if (!formData.caseType) {
-        toast.error("Please select a Case Type before submitting.");
-        return;
-      }
-
-      // Define mandatory fields and their display names
-      const mandatoryFields = {
-        dateOfIncident: 'Date of Filing / Incident',
-        complainantName: 'Complainant Name',
-        complainantAge: 'Complainant Age/Occupation',
-        complainantAddress: 'Complainant Address',
-        respondentName: 'Respondent Name'
-      } as const;
-
-      // Check if all mandatory fields are filled
-      const missingFields = Object.entries(mandatoryFields)
-        .filter(([key]) => {
-          const value = formData[key as keyof typeof formData];
-          return !value || (typeof value === 'string' && !value.trim());
-        })
-        .map(([_, label]) => label);
-
-      if (missingFields.length > 0) {
-        toast.error(`Please fill in all mandatory fields: ${missingFields.join(', ')}`);
-        return;
-      }
-    } else if (activeView === 'doc') {
-      const uploadedDocs = localStorage.getItem('uploadedDocuments');
-      if (!uploadedDocs) {
-        toast.error("Please upload at least one document before submitting.");
-        return;
-      }
-      
-      const documents = JSON.parse(uploadedDocs);
-      if (!documents.length) {
-        toast.error("Please upload at least one document before submitting.");
-        return;
-      }
-
-      toast.promise(
-        new Promise((resolve) => setTimeout(resolve, 2000)),
-        {
-          loading: 'Processing documents...',
-          success: `Successfully processed ${documents.length} document${documents.length > 1 ? 's' : ''}`,
-          error: 'Error processing documents'
-        }
-      ).finally(() => {
-        // Clear the documents from localStorage after successful submission
-        localStorage.removeItem('uploadedDocuments');
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    // Exclude function properties from the data to send
-    const { updateField, updateNestedField, ...dataToSend } = formData;
-
-    console.log("--- SUBMITTING DATA TO BACKEND ---");
-    console.log(`Input Mode: ${activeView}`);
-    console.log(JSON.stringify(dataToSend, null, 2));
-
-    toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 2000)),
-      {
-        loading: 'Processing form data...',
-        success: 'Form submitted successfully!',
-        error: 'Error processing form data',
-      }
-    ).finally(() => setIsLoading(false));
-  };
-
-  // --- UPDATED: Main handler now acts as a dispatcher ---
+  // --- REWRITTEN: The new, unified submit logic ---
   const handleSubmit = () => {
+    setIsLoading(true);
+    let userInput = '';
+    let chatTitle = '';
+
+    // 1. Consolidate input from any of the three views into a single string
     if (activeView === 'text') {
-      handleTextSubmit();
-    } else {
-      handleFormSubmit();
+      if (!textInput.trim()) {
+        toast.error("Please enter some text to analyze.");
+        setIsLoading(false);
+        return;
+      }
+      userInput = textInput;
+      // Use first 5 words of the input as title, or if empty, use default
+      chatTitle = textInput.split(' ').slice(0, 5).join(' ') + (textInput.split(' ').length > 5 ? '...' : '');
+    } else if (activeView === 'form') {
+      if (!formState.caseType) {
+        toast.error("Please select a Case Type before submitting.");
+        setIsLoading(false);
+        return;
+      }
+      // Simple validation for demonstration
+      if (!formState.complainantName || !formState.respondentName) {
+         toast.error("Please fill in the Complainant and Respondent names.");
+         setIsLoading(false);
+         return;
+      }
+      userInput = `Guided Form Submission:\n- Case Type: ${formState.caseType}\n- Complainant: ${formState.complainantName}\n- Respondent: ${formState.respondentName}`;
+      chatTitle = `${formState.caseType} Case`;
+    } else { // Document view
+      interface UploadedDocument {
+        name: string;
+      }
+      const uploadedDocs = localStorage.getItem('uploadedDocuments');
+      if (!uploadedDocs || JSON.parse(uploadedDocs).length === 0) {
+        toast.error("Please upload at least one document.");
+        setIsLoading(false);
+        return;
+      }
+      const documents = JSON.parse(uploadedDocs);
+      const docNames = documents.map((d: UploadedDocument) => d.name).join(', ');
+      userInput = `Document Submission: The following documents were uploaded for analysis: ${docNames}`;
+      // Create a better title format: "Document: filename"
+      chatTitle = documents.length === 1 
+        ? `Document: ${documents[0].name}` 
+        : `Documents: ${documents.length} files`;
     }
+
+    // 2. Create the new chat in our Zustand store
+    // The createChat function will add the user message and the mock model response
+    const newChatId = createChat(userInput, chatTitle);
+
+    // 3. Programmatically navigate to the new chat page
+    // This happens instantly without a page reload, giving the Gemini-like feel
+    router.push(`/chat/${newChatId}`);
+    
+    // We can even clear the form/text input after submission if desired
+    setTextInput('');
+    // You could add a formState.reset() method here as well
   };
+  
+  // --- (The rest of the component's JSX remains largely the same) ---
 
   const getButtonClassName = (viewName: InputView) => {
     const isActive = activeView === viewName;
@@ -161,8 +118,8 @@ const InputArea = () => {
           <div>
             <div className="relative">
               <textarea
-                value={textInput} // --- UPDATED: Controlled component
-                onChange={(e) => setTextInput(e.target.value)} // --- UPDATED: Controlled component
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
                 className="w-full h-48 p-4 pr-16 text-md bg-stone-100 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 rounded-lg resize-none text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:placeholder:text-stone-400 focus:bg-white dark:focus:bg-zinc-900 focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/50 focus:outline-none transition-all duration-200"
                 placeholder="Paste the full case description, FIR details, or narrative here..."
               />
