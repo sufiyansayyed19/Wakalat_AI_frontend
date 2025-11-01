@@ -15,6 +15,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from "@/components/AuthProvider";
 import AuthModal from "@/components/AuthModal";
 import { useAuthModalStore } from "@/store/authModalStore";
+import MCPConnectionPanel from "@/components/MCPConnectionPanel";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -87,6 +88,9 @@ export default function RootLayout({
               {children}
               
               <Footer />
+              
+              {/* MCP Connection Panel */}
+              <MCPConnectionPanel />
             </div>
           </ThemeProvider>
         </AuthProvider>

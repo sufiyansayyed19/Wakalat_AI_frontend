@@ -21,12 +21,11 @@ interface ChatState {
   addMessage: (chatId: string, message: Message) => void;
   setActiveChatId: (chatId: string | null) => void;
   markMessageAsStreamed: (chatId: string, messageIndex: number) => void; // New function
+  sendMessageWithGemini: (chatId: string, userMessage: string, useStreaming?: boolean) => Promise<void>; // New: Send message with Gemini
+  updateStreamingMessage: (chatId: string, messageIndex: number, content: string) => void; // New: Update streaming message content
 }
 
-// --- 2. Define the placeholder response ---
-const MOCK_RESPONSE_TEXT = "Thank you for your submission. Our system is processing your case details. Please note that the full backend analysis is currently under development. This is a simulated response to demonstrate the final user interface. When the backend is live, you will receive a complete legal analysis here.";
-
-// --- 3. Create the Zustand store ---
+// --- 2. Create the Zustand store ---
 export const useChatStore = create<ChatState>((set, get) => ({
   chats: [
     // We can pre-load the store with your existing dummy data for now
@@ -58,7 +57,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       title: newChatTitle,
       messages: [
         { role: 'User', content: userInput },
-        { role: 'Model', content: MOCK_RESPONSE_TEXT, isStreamed: false }
+        // Don't add mock response - Gemini will handle it
       ],
     };
 
@@ -77,13 +76,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
           : chat
       ),
     }));
-
-    // If the message being added is a user message, add a follow-up mock response
-    if (message.role === 'User') {
-      setTimeout(() => {
-        get().addMessage(chatId, { role: 'Model', content: MOCK_RESPONSE_TEXT, isStreamed: false });
-      }, 500);
-    }
   },
 
   markMessageAsStreamed: (chatId, messageIndex) => {
@@ -99,5 +91,111 @@ export const useChatStore = create<ChatState>((set, get) => ({
           : chat
       ),
     }));
+  },
+
+  updateStreamingMessage: (chatId, messageIndex, content) => {
+    set((state) => ({
+      chats: state.chats.map((chat) =>
+        chat.id === chatId
+          ? {
+              ...chat,
+              messages: chat.messages.map((msg, idx) =>
+                idx === messageIndex ? { ...msg, content } : msg
+              ),
+            }
+          : chat
+      ),
+    }));
+  },
+
+  sendMessageWithGemini: async (chatId, userMessage, useStreaming = true) => {
+    // Add user message
+    get().addMessage(chatId, { role: 'User', content: userMessage });
+
+    // Get conversation history
+    const chat = get().chats.find((c) => c.id === chatId);
+    const conversationHistory =
+      chat?.messages
+        .filter((msg) => msg.role !== 'User' || msg.content !== userMessage)
+        .map((msg) => ({
+          role: msg.role === 'User' ? ('user' as const) : ('model' as const),
+          content: msg.content,
+        })) || [];
+
+    // Create placeholder for model response
+    const messageIndex = chat?.messages.length || 0;
+    get().addMessage(chatId, { role: 'Model', content: '', isStreamed: false });
+
+    try {
+      if (useStreaming) {
+        // Streaming response
+        const response = await fetch('/api/gemini/stream', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            conversationHistory,
+            useMCPTools: true,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get streaming response');
+        }
+
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let accumulatedContent = '';
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            accumulatedContent += chunk;
+            get().updateStreamingMessage(chatId, messageIndex, accumulatedContent);
+          }
+        }
+
+        // Mark as streamed
+        get().markMessageAsStreamed(chatId, messageIndex);
+      } else {
+        // Non-streaming response
+        const response = await fetch('/api/gemini/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            conversationHistory,
+            useMCPTools: true,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to get response');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          get().updateStreamingMessage(chatId, messageIndex, data.response);
+          get().markMessageAsStreamed(chatId, messageIndex);
+        } else {
+          throw new Error(data.error || 'Unknown error');
+        }
+      }
+    } catch (error) {
+      console.error('Error sending message with Gemini:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to get response from Gemini. Please check your API key configuration.';
+      get().updateStreamingMessage(chatId, messageIndex, errorMessage);
+      get().markMessageAsStreamed(chatId, messageIndex);
+    }
   },
 }));
